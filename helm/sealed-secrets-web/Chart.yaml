@@ -1,0 +1,15 @@
+apiVersion: v2
+name: sealed-secrets-web
+description: Umbrella chart wrapping bakito/sealed-secrets-web with a Gateway API HTTPRoute and a mirrored image.
+type: application
+version: 0.1.0
+appVersion: "v3.3.1"
+kubeVersion: ">=1.22.0-0"
+
+# Dependency is pulled from our own OCI mirror (populated by .github/workflows/build.yml
+# from charts.bakito.net) so we don't depend on bakito's repo at deploy time.
+dependencies:
+  - name: sealed-secrets-web
+    version: 3.3.1
+    repository: oci://docker.io/alphaprosoft
+    alias: upstream

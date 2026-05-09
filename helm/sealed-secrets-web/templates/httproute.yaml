@@ -1,0 +1,28 @@
+{{- if .Values.gatewayApi.enabled -}}
+{{- $svc := .Values.upstream.fullnameOverride | default "sealed-secrets-web" -}}
+{{- $port := .Values.upstream.service.port | default 80 -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ $svc }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $svc }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gatewayApi.parentRef.name }}
+      namespace: {{ .Values.gatewayApi.parentRef.namespace }}
+      sectionName: {{ .Values.gatewayApi.parentRef.sectionName }}
+  hostnames:
+    - {{ printf "%s.%s" .Values.gatewayApi.subdomain .Values.gatewayApi.hostedZoneName | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ $svc }}
+          port: {{ $port }}
+{{- end }}

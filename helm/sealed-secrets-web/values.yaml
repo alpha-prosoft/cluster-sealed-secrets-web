@@ -1,0 +1,25 @@
+# Gateway API (HTTPRoute) configuration for exposing sealed-secrets-web through
+# the cluster's Gateway. Hostname is `<subdomain>.<hostedZoneName>` — e.g.
+# secret.${PublicHostedZoneName}.
+gatewayApi:
+  enabled: false
+  subdomain: secret
+  hostedZoneName: ""
+  parentRef:
+    name: alb
+    namespace: gateway-system
+    sectionName: https
+
+# Values forwarded to the upstream bakito/sealed-secrets-web chart.
+# Anything supported by the upstream values.yaml can be overridden here:
+# https://github.com/bakito/sealed-secrets-web/blob/main/chart/values.yaml
+upstream:
+  # Image is mirrored to DockerHub by this repo's CI workflow; the tag is
+  # rewritten to match the appVersion of the bakito chart pulled at build time.
+  image:
+    repository: docker.io/alphaprosoft/sealed-secrets-web
+    pullPolicy: IfNotPresent
+  # Force a stable name regardless of the dependency alias, so labels and the
+  # service name the HTTPRoute references remain "sealed-secrets-web".
+  nameOverride: sealed-secrets-web
+  fullnameOverride: sealed-secrets-web
